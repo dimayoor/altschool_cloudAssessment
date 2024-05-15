@@ -1,0 +1,56 @@
+---
+# Deploy a LAMP stack project
+- name: Deploy LAMP stack
+  hosts: slave
+  become: yes
+
+  # set up task to be performed
+  tasks:
+    # Copy bash script to the slave node
+    - name: Copy lamp.sh script to slave node
+      copy:
+        src: lamp.sh
+        dest: /home/vagrant/lamp.sh
+        mode: 0755
+
+    # Execute the bash script on the slave node
+    - name: Execute bash script on slave node
+      shell: /home/vagrant/lamp.sh
+
+
+# Create cron job to check server uptime every 12am
+- name: Create a cron job to check server's uptime every 12 am
+  hosts: slave
+  become: yes
+
+  # set up task to be performed
+  tasks:
+    # Create an uptime script that logs the server's uptime to a file
+    - name: Create the uptime script
+      copy:
+        src: uptime_check.sh
+        dest: /home/vagrant/uptime_check.sh
+        mode: 0755
+
+    # Create a cron job that runs the uptime script every day at 12am
+    - name: Create a cron job to check uptime every 12 am
+      cron:
+        name: Check uptime every 12am
+        job: "/home/vagrant/uptime_check.sh"
+
+        # Run at 12:00 am
+        minute: '0'  
+        hour: '0'
+        state: present
+
+    # Display the contents of the uptime log file
+    - name: Display uptime log file
+      shell: cat /var/log/uptime.log
+      register: uptime_output
+      ignore_errors: yes  # Ignore errors if the log file doesn't exist yet
+
+    # Display the server's uptime as captured in the uptime log file
+    - name: Display the server's uptime
+      debug:
+        msg: "{{ uptime_output.stdout }}"
+      when: uptime_output is defined and uptime_output.stdout is defined
