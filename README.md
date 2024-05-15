@@ -1,4 +1,4 @@
-# ALT_SCH FINAL ASSESSMENT 
+# 3MTT Cloud Engineering – Beginner Module Assessment 
 I created two Virtual Machine (VM): one is the main and the other one is the slave. 
 
 I successfully setup a the second server (the slave VM) and added the IP Address of the host file to the main VM 
